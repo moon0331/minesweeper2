@@ -51,6 +51,13 @@ class Board:
             for c in range(size):
                 self.board[r][c].n_adj_bomb = bomb_distance[r][c]
 
+    def select(self, loc): # 테스트 필요
+        r, c = loc
+        has_bomb = self.board[r][c].click()
+        if has_bomb:
+            print('Game END!')
+        else:
+            pass # recursive하게 구현해보기
 
     def print_board(self, raw = False, flatten=False, add_bomb_loc=False):
         for line in self.board:
