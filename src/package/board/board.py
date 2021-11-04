@@ -1,5 +1,5 @@
 from random import randint
-from package.board import Block
+from package.board.board import Block
 
 '''board definition'''
 
@@ -11,9 +11,10 @@ class Board:
         고급: 30×16 넓이의 지뢰밭에 99개의 지뢰
         '''
         self.board_size = size
-        self.n_bomb = 10
+        self.n_bomb = n_bomb
+        self.remain_bomb = n_bomb # log
         
-        self.bomb_roc = self._randomize_bomb() # 지뢰 위치 랜덤 결정
+        self.bomb_loc = self._randomize_bomb() # 지뢰 위치 랜덤 결정
         self.board = self._generate() # 보드 생성
         self._calculate_bomb_distance() # 지뢰 개수 세어 저장
     
