@@ -44,7 +44,7 @@ class Board:
         for r, c in self.bomb_loc:
             for adj_r in range(r-1, r+2):
                 for adj_c in range(c-1, c+2):
-                    if not (r == adj_r == adj_c) and 0<=adj_r<size and 0<=adj_c<size:
+                    if not (r == adj_r and c == adj_c) and 0<=adj_r<size and 0<=adj_c<size:
                         bomb_distance[adj_r][adj_c] += 1
 
         for r in range(size):
