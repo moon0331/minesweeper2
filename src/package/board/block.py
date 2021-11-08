@@ -5,11 +5,15 @@ class Block:
         self.loc = loc
         self.has_bomb = has_bomb
         self.n_adj_bomb = 0
+        self.selected = False
 
         self.image = ''
         self._generate_image(has_bomb)
 
     def click(self):
+        if not self.selected:
+            self.selected = True
+            
         if self.has_bomb:
             return True # 폭탄 있음 -> 후처리 필요
         else:
