@@ -1,3 +1,1 @@
-from 
-
-Board(9, 10).print_board()
+from board.board import Board
