@@ -13,7 +13,7 @@ class Block:
     def click(self):
         if not self.selected:
             self.selected = True
-            
+
         if self.has_bomb:
             return True # 폭탄 있음 -> 후처리 필요
         else:
@@ -28,11 +28,18 @@ class Block:
         else:
             self.image = ''
 
+    def _loc(self):
+        return f'({self.loc[0]},{self.loc[1]})'
+
     def __repr__(self):
+        loc = f'({self.loc[0]},{self.loc[1]})'
         if self.has_bomb:
-            return f'[({self.loc[0]},{self.loc[1]}), BOMB, {self.n_adj_bomb}]'
+            return f'B'
         else:
-            return f'[({self.loc[0]},{self.loc[1]}), ----, {self.n_adj_bomb}]'
+            if self.selected:
+                return f'{self.n_adj_bomb}'
+            else:
+                return f'-'
 
 if __name__ == '__main__':
     print(Block((13,2)))

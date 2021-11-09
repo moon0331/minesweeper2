@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, seed
 # from package.board.board import Block
 
 from block import Block
@@ -17,7 +17,7 @@ def adj_loc(x, y, maxval):
             yield x, y
 
 class Board:
-    def __init__(self, size=9, n_bomb = 10):
+    def __init__(self, size=9, n_bomb = 10, seed=None):
         '''
         초급: 9×9 넓이의 지뢰밭에 10개의 지뢰
         중급: 16×16 넓이의 지뢰밭에 40개의 지뢰
@@ -25,18 +25,20 @@ class Board:
         '''
         self.size = size
         self.n_bomb = n_bomb
-        self.remain_bomb = n_bomb # log
+        self.remain_bomb = n_bomb # 실제 남은 폭탄 개수
+        self.selected_bomb = 0 # 유저가 선택한 폭탄 개수
 
         self.bomb_loc = set()
         self.board = None
         
-        self._randomize_bomb() # 지뢰 위치 랜덤 결정
+        self._randomize_bomb(seed) # 지뢰 위치 랜덤 결정
         self._generate() # 보드 생성
 
         self._calculate_bomb_distance() # 지뢰 개수 세어 저장
     
 
-    def _randomize_bomb(self):
+    def _randomize_bomb(self, seed_number):
+        seed(seed_number)
         self.bomb_loc = set()
         while len(self.bomb_loc) < self.n_bomb:
             x = randint(0, self.size-1)
@@ -62,22 +64,47 @@ class Board:
             for c in range(size):
                 self.board[r][c].n_adj_bomb = bomb_distance[r][c]
 
+    def right_click(self, loc):
+        r, c = loc
+        if self.board[r][c].has_bomb():
+            self.remain_bomb -= 1
+        self.selected_bomb += 1
+
     def select(self, loc): # 테스트 필요
         size = self.size
         stack = [loc]
         while stack:
             r, c = stack.pop()
+            # print(r,c)
             if self.board[r][c].click():
                 print('Game END!')
                 # exit(1)
             else:
-                for adj_r, adj_c in adj_loc(r, c, size):
-                    if not self.board[r][c].selected:
-                        self.select((adj_r, adj_c))
+                # 주위 폭탄 수 체크하는 부분 추가하기
+                # 연쇄폭발 부분은 아래에 
+                if not self.board[r][c].n_adj_bomb:
+                    for adj_r, adj_c in adj_loc(r, c, size):
+                        # adj_block = self.board[adj_r][adj_c]
+                        if not self.board[adj_r][adj_c].selected:
+                            stack.append((adj_r, adj_c))
+
 
     def print_board(self, raw = False, flatten=False, add_bomb_loc=False):
         for line in self.board:
-            print(" | ".join([str(x) for x in line]))
+            print(" ".join([str(x) for x in line]))
+            # print(" ".join([x._loc()+str(x) for x in line]))
+
+
+    def print_bomb_loc(self):
+        print(self.bomb_loc)
+
+
+    def is_end_success(self):
+        return self.selected_bomb == self.n_bomb and self.remain_bomb == 0
 
 if __name__ == '__main__':
-    Board(4,3).print_board()
+    main_board = Board(9,10,seed=12345)
+    main_board.print_board()
+    main_board.print_bomb_loc()
+    main_board.select(list(map(int, input().split())))
+    main_board.print_board()
