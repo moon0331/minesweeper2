@@ -16,26 +16,46 @@ def adj_loc(x, y, maxval):
         if 0<=x<maxval and 0<=y<maxval:
             yield x, y
 
+def cnt_b(board_string):
+    return "".join(board_string).count('b')
+
 class Board:
-    def __init__(self, size=9, n_bomb = 10, seed=None):
+    def __init__(self, size=9, n_bomb = 10, seed=None, board_string=None):
         '''
         초급: 9×9 넓이의 지뢰밭에 10개의 지뢰
         중급: 16×16 넓이의 지뢰밭에 40개의 지뢰
         고급: 30×16 넓이의 지뢰밭에 99개의 지뢰
         '''
-        self.size = size
-        self.n_bomb = n_bomb
-        self.remain_bomb = n_bomb # 실제 남은 폭탄 개수
-        self.selected_bomb = 0 # 유저가 선택한 폭탄 개수
+        if board_string:
+            rsize, csize = len(board_string), len(board_string[0])
+            size = rsize
+            if rsize != csize:
+                raise Exception('# of row != # of column')
 
+        self.size = size
+        self.n_bomb = cnt_b(board_string) if board_string else n_bomb
+        self.remain_bomb = n_bomb # 실제 남은 폭탄 개수
+        self.selected_bomb = 0 # 유저가 선택한 폭탄 개수            
+        
         self.bomb_loc = set()
         self.board = None
         
-        self._randomize_bomb(seed) # 지뢰 위치 랜덤 결정
+        self._set_bomb(seed, board_string) # 지뢰 위치 랜덤 결정
         self._generate() # 보드 생성
 
         self._calculate_bomb_distance() # 지뢰 개수 세어 저장
+
     
+    def _set_bomb(self, seed_number, board_string=None):
+        self.bomb_loc = set()
+        if board_string:
+            for x in range(self.size):
+                for y in range(self.size):
+                    if board_string[x][y] == 'b':
+                        self.bomb_loc.add((x, y))
+        else:
+            self._randomize_bomb(seed_number)
+
 
     def _randomize_bomb(self, seed_number):
         seed(seed_number)
@@ -63,6 +83,7 @@ class Board:
         for r in range(size):
             for c in range(size):
                 self.board[r][c].n_adj_bomb = bomb_distance[r][c]
+
 
     def right_click(self, loc):
         r, c = loc
@@ -103,6 +124,11 @@ class Board:
         return self.selected_bomb == self.n_bomb and self.remain_bomb == 0
 
 if __name__ == '__main__':
+    b = ['----b', 'bbbb-', 'bb--b', '----b', '-----']
+    b = Board(board_string=b)
+    b.print_board()
+    b.print_bomb_loc()
+
     main_board = Board(9,10,seed=12345)
     main_board.print_board()
     main_board.print_bomb_loc()
