@@ -26,16 +26,20 @@ class Board:
         self.height = height
         self.width = width
         self.n_bomb = n_bomb
+
+        # Maybe deprecated.
         self.remain_bomb = n_bomb # log
 
         self.bomb_loc = set()
-        self.board = None
+        self.block_table = None
+
+        # Remaining flag value starts from n_bomb, which can be less than 0.
+        self.remain_flag = self.remain_bomb
         
         self._randomize_bomb() # 지뢰 위치 랜덤 결정
         self._generate() # 보드 생성
 
         self._calculate_bomb_distance() # 지뢰 개수 세어 저장
-    
 
     def _randomize_bomb(self):
         self.bomb_loc = set()
@@ -48,9 +52,9 @@ class Board:
 
     def _generate(self):
         height, width = self.height, self.width
-        self.board = [[Block((row, col)) for col in range(width)] for row in range(height)]
+        self.block_table = [[Block((row, col)) for col in range(width)] for row in range(height)]
         for r, c in self.bomb_loc:
-            self.board[r][c]._set_bomb()
+            self.block_table[r][c]._set_bomb()
 
 
     def _calculate_bomb_distance(self):
@@ -62,24 +66,25 @@ class Board:
 
         for r in range(height):
             for c in range(width):
-                self.board[r][c].n_adj_bomb = bomb_distance[r][c]
+                self.block_table[r][c].n_adj_bomb = bomb_distance[r][c]
 
     def select(self, loc): # 테스트 필요
         height, width = self.height, self.width
         stack = [loc]
         while stack:
             r, c = stack.pop()
-            if self.board[r][c].click():
+            if self.block_table[r][c].click():
                 print('Game END!')
                 # exit(1)
             else:
                 for adj_r, adj_c in adj_loc(r, c, height, width):
-                    if not self.board[r][c].selected:
+                    if not self.block_table[r][c].selected:
                         self.select((adj_r, adj_c))
 
     def print_board(self, raw = False, flatten=False, add_bomb_loc=False):
-        for line in self.board:
+        for line in self.block_table:
             print(" | ".join([str(x) for x in line]))
+
 
 if __name__ == '__main__':
     Board(4, 4, 3).print_board()
