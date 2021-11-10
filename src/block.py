@@ -9,8 +9,12 @@ class Block:
 
         self.image = ''
         self._generate_image(has_bomb)
+        
+        self.opened = False
+        self.flaged = False
+        self.mark = '.'
 
-    def click(self):
+    def left_click(self):
         if not self.selected:
             self.selected = True
 
