@@ -107,7 +107,7 @@ class GameManager:
     
     def victory(self, board, block_table, height, width):
         print("YOU WIN!\n")
-        print(self.remain_flag.ljust(20), self.timer)
+        print(board.remain_flag.ljust(20), self.timer)
 
         for row in range(height):
             for col in range(width):
