@@ -2,39 +2,27 @@
 ⓒ 2021 Kyeongjin Mun, Seungwon Lee All Rights Reserved.
 """
 
-# Maybe it will be changed using __init__.py
+
+import os
 import sys
-import time
+# import time  # Deprecated now
 
-from board.board import Board
+# Scheduled to change using __init__.py if possible
+from object.board import Board
+from object.board import adj_loc
 
 
-class GameManager:
-    """A class which is responsible for level selection, displaying board, user input, main sequence, results, etc.,
-    that is almost all about this game.
+class Agent:
+    """A class which is responsible for whole game management such as level selection, displaying board, user input,
+    main sequence, results, etc., that is almost all about this game.
     """
 
     def __init__(self):
         self.level_info = {1: 'Beginner', 2: 'Intermediate', 3: 'Expert'}
         self.board_info = {'Beginner': (9, 9, 10), 'Intermediate': (16, 16, 40), 'Expert': (16, 30, 99)}
-        self.status = 'Playing'
-        
-        # Temporary
-        self.timer = 0
-        self.elapsed_time = 0
-        self.clicks = 0
+        self.time = 0  # Temporary
+        self.click = 0
     
-    def display_board(self, board, block_table, height, width):
-        print(("Remaining Flags: %d" % board.remain_flag).ljust(20), "Time: %d" % self.timer)
-        print()
-        for row in range(height):
-            for col in range(width):
-                block = block_table[row][col]
-                # print(block.mark, end=' ')
-                print("*", end=' ') if block.has_bomb else print(block.n_adj_bomb, end=' ')  # For debug
-            print()
-        print()
-
     def select_level(self):
         while True:
             try:
@@ -44,113 +32,149 @@ class GameManager:
                 else:
                     raise
             except:
-                print("Please try again.\n")
-    
-    def generate_board(self, level):
-        height, width, n_bomb = self.board_info[level]
+                os.system('clear')
+                print("Wrong input. Please try again.\n")
+
+    def generate_board(self):
+        height, width, n_bomb = self.board_info[self.level]
         self.board = Board(height, width, n_bomb)
+
+    def display_board(self):
+        print(("Remaining Flags: %d" % self.board.remain_flag).ljust(20), "Time: %d\n" % self.time)
+        for row in range(self.height):
+            for col in range(self.width):
+                cur = self.board.block_list[row][col]
+                print(cur.mark, end=' ')
+                # print("*", end=' ') if cur.has_bomb else print(cur.n_adj_bomb, end=' ')  # For debug
+            print()
+        print()
     
-    def user_input(self, board, block_table, height, width):
+    def command(self):
         while True:
             try:
-                self.display_board(board, block_table, height, width)
-                print("Row: 1 ~ %d Column: 1 ~ %d Action: 1. left click 2. right click 3. both" % (height, width))
+                self.display_board()
+                print("Row: 0 ~ %d Column: 0 ~ %d Action: 1. left click 2. right click 3. both" % (self.height - 1, self.width - 1))
                 row, col, act = map(int, input("Enter your input such as 'row column action': ").split())
-                if 1 <= row <= height and 1 <= col <= width and 1 <= act <= 3:
+                if 0 <= row < self.height and 0 <= col < self.width and 1 <= act <= 3:
+                    self.click += 1
                     return row, col, act
                 else:
                     raise
             except:
-                print("Please try again.\n")
+                os.system('clear')
+                print("Wrong input. Please try again.\n")
+    
+    def count_adj_flag(self, row, col):
+        adj_flag = 0
+        for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
+            if self.board.block_list[adj_r][adj_c].flaged:
+                adj_flag += 1
+        return adj_flag
 
-    def left_click(self, board, block_table, row, col):
-        block = block_table[row][col]
-        if block.has_bomb:
-            return 'Game Over'
+    def left_click(self, row, col):
+        cur = self.board.block_list[row][col]
+        if cur.has_bomb:
+            self.game_over()
         else:
-            # left_click algorithm
-            pass
-
             if self.remain_block == 0:
-                return 'Victory'
+                self.victory()
 
-    def right_click(self, board, block_table, row, col):
-        block = block_table[row][col]
-        block.flaged = not block.flaged
+            # Left click algorithm (core algorithm)
+            if not cur.opened:
+                cur.opened = True
+                self.board.remain_block -= 1
+            pass  # Recursion; not completed.
 
-        if block.flaged:
-            board.remain_flag -= 1
-            block.mark = 'F'
+    def right_click(self, row, col):
+        cur = self.board.block_list[row][col]
+        cur.flaged = not cur.flaged
+
+        if cur.flaged:
+            self.board.remain_flag -= 1
+            cur.mark = 'F'
         else:
-            board.remain_flag += 1
-            block.mark = block.adj_n_bomb if block.opened else '.'
-        
-        return 'Playing'
+            self.board.remain_flag += 1
+            cur.mark = cur.adj_n_bomb if cur.opened else '.'
     
-    def chord(self, board, block_table, row, col):
-        pass
+    def chord(self, row, col):
+        # 지뢰 위치 잘못 표시했을때 게임 오버는 아직 구현 안함
+        for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
+            self.left_click(adj_r, adj_c)
     
-    def game_over(self, board, block_table, height, width):
+    def game_over(self):
+        os.system('clear')
         print("GAME OVER\n")
-        print(board.remain_flag.ljust(20), self.timer)
+        print(("Remaining Flags: %d" % self.board.remain_flag).ljust(20), "Time: %d\n" % self.time)
 
-        for row in range(height):
-            for col in range(width):
-                block = block_table[row][col]
-                print("*", end=' ') if block.has_bomb else print(block.mark, end=' ')
+        for row in range(self.height):
+            for col in range(self.width):
+                cur = self.board.block_list[row][col]
+                print("*", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
             print()
+        print()
         
-        print("Elapsed Time: %f" % self.elapsed_time)
-        print("Clicks: %d" % self.clicks)
+        print("Time: %f" % self.time)
+        print("Clicks: %d\n" % self.click)
 
         sys.exit(0)
     
-    def victory(self, board, block_table, height, width):
-        print("YOU WIN!\n")
-        print(board.remain_flag.ljust(20), self.timer)
+    def victory(self):
+        os.system('clear')
+        print("VICTORY!!\n")
+        print(("Remaining Flags: %d" % self.board.remain_flag).ljust(20), "Time: %d\n" % self.time)
+        print(self.board.remain_flag.ljust(20), self.time)
 
-        for row in range(height):
-            for col in range(width):
-                block = block_table[row][col]
-                print(block.mark, end=' ')
+        for row in range(self.height):
+            for col in range(self.width):
+                cur = self.block_list[row][col]
+                print(cur.mark, end=' ')
             print()
+        print()
         
-        print("Elapsed Time: %f" % self.elapsed_time)
-        print("Clicks: %d" % self.clicks)
+        print("Time: %f" % self.time)
+        print("Clicks: %d\n" % self.click)
 
         sys.exit(0)
 
-    def main(self, board, height, width):
+    def main(self):
         """Main sequence of playing minesweeper2."""
-        height, width = board.height, board.width
-
-        # User input: 1-index, back-end: 0-index
-        while self.status == 'Playing':
-            row, col, act = self.user_input(board, board.block_table, height, width)
-            if act == 1:
-                self.status = self.left_click(board, board.block_table, row - 1, col - 1)
-            elif act == 2:
-                self.status = self.right_click(board, board.block_table, row - 1, col - 1)
-            else:
-                if not board.block_table[row - 1][col - 1].opened:
-                    #  Closed block chord exception.
-                    print("You can chord the opened block only. Please try again.\n")
-                    continue
-                self.status = self.chord(row - 1, col - 1)
+        os.system('clear')
         
-        # Game end
-        self.victory(board, board.block_table, height, width) if self.status == 'Victory' else \
-        self.game_over(board, board.block_table, height, width)
+        # Only 0-index is used for both backend and user input.
+        while True:
+            row, col, act = self.command()
+            if act == 1:
+                self.left_click(row, col)
+            elif act == 2:
+                self.right_click(row, col)
+            else:
+                self.count_flag(row, col)
+                cur = self.board.block_list[row][col]
+                
+                if not cur.opened:
+                    # Closed block chord exception.
+                    os.system('clear')
+                    print("You can chord opened block only. Please try again.\n")
+                    continue
+                
+                if not self.count_adj_flag(row, col) == cur.n_adj_bomb:
+                    # Flag num and block num mismatch exception.
+                    os.system('clear')
+                    print("You can only chord when the number of flags matches the block number. Please try again.\n")
+                    continue
+                
+                self.chord(row, col)
+            
+            os.system('clear')
 
     def run(self):
         print("Minesweeper v2.0\nⓒ  2021 Kyeongjin Mun, Seungwon Lee All Rights Reserved.\n")
         level = self.select_level()
         self.level = self.level_info[level]
-        self.generate_board(self.level)
-        height, width = self.board.height, self.board.width
-        self.main(self.board, height, width)
+        self.generate_board()
+        self.main()
 
 
 if __name__=='__main__':
-    game_manager = GameManager()
-    game_manager.run()
+    agent = Agent()
+    agent.run()

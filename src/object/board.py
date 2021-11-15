@@ -1,5 +1,5 @@
 from random import randint
-from board.block import Block
+from object.block import Block
 
 '''board definition'''
 
@@ -27,14 +27,14 @@ class Board:
         self.width = width
         self.n_bomb = n_bomb
 
-        # Maybe deprecated.
+        # Maybe will be deprecated.
         self.remain_bomb = n_bomb # log
 
         self.bomb_loc = set()
-        self.block_table = None
+        self.block_list = None
 
-        # Remaining flag value starts from n_bomb, which can be less than 0.
-        self.remain_flag = self.remain_bomb
+        self.remain_flag = self.remain_bomb  # Remaining flag value starts from n_bomb, which can be less than 0.
+        self.remain_block = height * width  # If this value goes to 0, user wins.
         
         self._randomize_bomb() # 지뢰 위치 랜덤 결정
         self._generate() # 보드 생성
@@ -52,9 +52,9 @@ class Board:
 
     def _generate(self):
         height, width = self.height, self.width
-        self.block_table = [[Block((row, col)) for col in range(width)] for row in range(height)]
+        self.block_list = [[Block((row, col)) for col in range(width)] for row in range(height)]
         for r, c in self.bomb_loc:
-            self.block_table[r][c]._set_bomb()
+            self.block_list[r][c]._set_bomb()
 
 
     def _calculate_bomb_distance(self):
@@ -66,23 +66,24 @@ class Board:
 
         for r in range(height):
             for c in range(width):
-                self.block_table[r][c].n_adj_bomb = bomb_distance[r][c]
+                self.block_list[r][c].n_adj_bomb = bomb_distance[r][c]
 
-    def select(self, loc): # 테스트 필요
+    # Deprecated
+    def select(self, loc):
         height, width = self.height, self.width
         stack = [loc]
         while stack:
             r, c = stack.pop()
-            if self.block_table[r][c].click():
+            if self.block_list[r][c].click():
                 print('Game END!')
                 # exit(1)
             else:
                 for adj_r, adj_c in adj_loc(r, c, height, width):
-                    if not self.block_table[r][c].selected:
+                    if not self.block_list[r][c].selected:
                         self.select((adj_r, adj_c))
 
     def print_board(self, raw = False, flatten=False, add_bomb_loc=False):
-        for line in self.block_table:
+        for line in self.block_list:
             print(" | ".join([str(x) for x in line]))
 
 
