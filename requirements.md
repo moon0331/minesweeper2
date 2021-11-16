@@ -3,9 +3,9 @@
 
 # 공지사항
 
-구조를 상당히 많이 바꿨으므로 main branch로의 merge는 아직 진행하지 말 것
+현재 모든 작업과 테스트를 (거의) 마친 상태
 
-- 현재 타이머 구현을 제외한 모든 과정을 마친 상태!!
+혹시 버그를 발견한다면 제보 바람
 
 Reference: Minesweeper Online(https://minesweeper.online/ko/)
 
