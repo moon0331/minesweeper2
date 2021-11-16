@@ -5,7 +5,7 @@
 
 import os
 import sys
-# import time  # Deprecated now
+import time
 from collections import deque
 
 # Scheduled to change using __init__.py if possible
@@ -13,14 +13,14 @@ from object.board import Board
 from object.board import adj_loc
 
 
-class Agent():
+class Agent(Board):
     """A class which is responsible for whole game management such as level selection, displaying board, user input,
     main sequence, results, etc., that is almost all about this game.
     """
 
     def __init__(self):
         self.board_info = {1: (9, 9, 10), 2: (16, 16, 40), 3: (16, 30, 99)}
-        self.time = 0  # Temporary
+        self.time = 0
         self.click = 0
     
     def select_level(self):
@@ -45,14 +45,6 @@ class Agent():
             for col in range(self.board.width):
                 cur = self.board.block_list[row][col]
                 print(cur.mark, end=' ')
-            print()
-        print()
-
-        # For debug
-        for row in range(self.board.height):
-            for col in range(self.board.width):
-                cur = self.board.block_list[row][col]
-                print("*", end=' ') if cur.has_bomb else print(cur.n_adj_bomb, end=' ')
             print()
         print()
     
