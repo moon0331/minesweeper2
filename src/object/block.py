@@ -12,7 +12,7 @@ class Block:
         
         self.opened = False
         self.flaged = False
-        self.mark = '.'
+        self.mark = '■'
 
     def left_click(self):
         if not self.selected:

@@ -27,14 +27,14 @@ class Board:
         self.width = width
         self.n_bomb = n_bomb
 
-        # Maybe will be deprecated.
+        # Deprecated
         self.remain_bomb = n_bomb # log
 
         self.bomb_loc = set()
         self.block_list = None
 
         self.remain_flag = self.remain_bomb  # Remaining flag value starts from n_bomb, which can be less than 0.
-        self.remain_block = height * width  # If this value goes to 0, user wins.
+        self.remain_block = height * width - n_bomb # If this value goes to 0, user wins.
         
         self._randomize_bomb() # 지뢰 위치 랜덤 결정
         self._generate() # 보드 생성

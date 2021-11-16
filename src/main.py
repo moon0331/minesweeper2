@@ -1,4 +1,4 @@
-"""Minesweeper v2.0
+"""MINESWEEPER 2
 ⓒ 2021 Kyeongjin Mun, Seungwon Lee All Rights Reserved.
 """
 
@@ -6,20 +6,20 @@
 import os
 import sys
 # import time  # Deprecated now
+from collections import deque
 
 # Scheduled to change using __init__.py if possible
 from object.board import Board
 from object.board import adj_loc
 
 
-class Agent:
+class Agent():
     """A class which is responsible for whole game management such as level selection, displaying board, user input,
     main sequence, results, etc., that is almost all about this game.
     """
 
     def __init__(self):
-        self.level_info = {1: 'Beginner', 2: 'Intermediate', 3: 'Expert'}
-        self.board_info = {'Beginner': (9, 9, 10), 'Intermediate': (16, 16, 40), 'Expert': (16, 30, 99)}
+        self.board_info = {1: (4, 4, 3), 2: (16, 16, 40), 3: (16, 30, 99)}
         self.time = 0  # Temporary
         self.click = 0
     
@@ -33,7 +33,7 @@ class Agent:
                     raise
             except:
                 os.system('clear')
-                print("Wrong input. Please try again.\n")
+                print("Wrong input.\n")
 
     def generate_board(self):
         height, width, n_bomb = self.board_info[self.level]
@@ -41,49 +41,69 @@ class Agent:
 
     def display_board(self):
         print(("Remaining Flags: %d" % self.board.remain_flag).ljust(20), "Time: %d\n" % self.time)
-        for row in range(self.height):
-            for col in range(self.width):
+        for row in range(self.board.height):
+            for col in range(self.board.width):
                 cur = self.board.block_list[row][col]
                 print(cur.mark, end=' ')
-                # print("*", end=' ') if cur.has_bomb else print(cur.n_adj_bomb, end=' ')  # For debug
+            print()
+        print()
+
+        # For debug
+        for row in range(self.board.height):
+            for col in range(self.board.width):
+                cur = self.board.block_list[row][col]
+                print("*", end=' ') if cur.has_bomb else print(cur.n_adj_bomb, end=' ')
             print()
         print()
     
     def command(self):
         while True:
+            self.display_board()
+            print("Row: 0 ~ %d Column: 0 ~ %d Action: 1. left click 2. right click 3. chord" % (self.board.height - 1, self.board.width - 1))
             try:
-                self.display_board()
-                print("Row: 0 ~ %d Column: 0 ~ %d Action: 1. left click 2. right click 3. both" % (self.height - 1, self.width - 1))
                 row, col, act = map(int, input("Enter your input such as 'row column action': ").split())
-                if 0 <= row < self.height and 0 <= col < self.width and 1 <= act <= 3:
+                if 0 <= row < self.board.height and 0 <= col < self.board.width and 1 <= act <= 3:
                     self.click += 1
                     return row, col, act
                 else:
                     raise
             except:
                 os.system('clear')
-                print("Wrong input. Please try again.\n")
+                print("Wrong input.\n")
     
     def count_adj_flag(self, row, col):
         adj_flag = 0
-        for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
+        for adj_r, adj_c in adj_loc(row, col, self.board.height, self.board.width):
             if self.board.block_list[adj_r][adj_c].flaged:
                 adj_flag += 1
         return adj_flag
 
     def left_click(self, row, col):
         cur = self.board.block_list[row][col]
+        
         if cur.has_bomb:
+            self.board.miss_block = self.board.block_list[row][col]
             self.game_over()
+        
         else:
-            if self.remain_block == 0:
-                self.victory()
+            q = deque([(row, col)])
+            vis = [[0] * self.board.width for _ in range(self.board.height)]
+            vis[row][col] = 1
 
-            # Left click algorithm (core algorithm)
-            if not cur.opened:
-                cur.opened = True
-                self.board.remain_block -= 1
-            pass  # Recursion; not completed.
+            while q:
+                r, c = q.popleft()
+                cur = self.board.block_list[r][c]
+                
+                if not cur.opened:
+                    cur.opened = True
+                    cur.mark = '%d' % cur.n_adj_bomb if cur.n_adj_bomb else '□'
+                    self.board.remain_block -= 1
+                
+                if self.board.block_list[r][c].n_adj_bomb == 0:
+                    for adj_r, adj_c in adj_loc(r, c, self.board.height, self.board.width):
+                        if not vis[adj_r][adj_c]:
+                            q.append((adj_r, adj_c))
+                            vis[adj_r][adj_c] = 1
 
     def right_click(self, row, col):
         cur = self.board.block_list[row][col]
@@ -91,25 +111,38 @@ class Agent:
 
         if cur.flaged:
             self.board.remain_flag -= 1
-            cur.mark = 'F'
+            cur.mark = '▶'
         else:
             self.board.remain_flag += 1
-            cur.mark = cur.adj_n_bomb if cur.opened else '.'
+            cur.mark = '■'
     
     def chord(self, row, col):
-        # 지뢰 위치 잘못 표시했을때 게임 오버는 아직 구현 안함
-        for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
-            self.left_click(adj_r, adj_c)
+        for adj_r, adj_c in adj_loc(row, col, self.board.height, self.board.width):
+            cur = self.board.block_list[adj_r][adj_c]
+            if cur.has_bomb != cur.flaged:
+                self.board.miss_block = cur
+                self.game_over()
+
+        for adj_r, adj_c in adj_loc(row, col, self.board.height, self.board.width):
+            cur = self.board.block_list[adj_r][adj_c]
+            if not cur.flaged and not cur.opened:
+                self.left_click(adj_r, adj_c)
     
     def game_over(self):
         os.system('clear')
         print("GAME OVER\n")
         print(("Remaining Flags: %d" % self.board.remain_flag).ljust(20), "Time: %d\n" % self.time)
 
-        for row in range(self.height):
-            for col in range(self.width):
+        for row in range(self.board.height):
+            for col in range(self.board.width):
                 cur = self.board.block_list[row][col]
-                print("*", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
+                if cur.flaged:
+                    print("▶", end=' ') if cur.has_bomb else print("▷", end=' ')
+                else:
+                    if cur == self.board.miss_block:
+                        print("X", end=' ')
+                    else:
+                        print("*", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
             print()
         print()
         
@@ -121,13 +154,12 @@ class Agent:
     def victory(self):
         os.system('clear')
         print("VICTORY!!\n")
-        print(("Remaining Flags: %d" % self.board.remain_flag).ljust(20), "Time: %d\n" % self.time)
-        print(self.board.remain_flag.ljust(20), self.time)
+        print(("Remaining Flags: %d" % 0).ljust(20), "Time: %d\n" % self.time)
 
-        for row in range(self.height):
-            for col in range(self.width):
-                cur = self.block_list[row][col]
-                print(cur.mark, end=' ')
+        for row in range(self.board.height):
+            for col in range(self.board.width):
+                cur = self.board.block_list[row][col]
+                print("▶", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
             print()
         print()
         
@@ -137,40 +169,50 @@ class Agent:
         sys.exit(0)
 
     def main(self):
-        """Main sequence of playing minesweeper2."""
+        """Main sequence of playing Minesweeper 2."""
         os.system('clear')
         
         # Only 0-index is used for both backend and user input.
-        while True:
+        while self.board.remain_block:
             row, col, act = self.command()
+            cur = self.board.block_list[row][col]
             if act == 1:
+                # Opended block left click exception.
+                if cur.opened:
+                    os.system('clear')
+                    print("You can left click closed block only.\n")
+                    continue
                 self.left_click(row, col)
             elif act == 2:
+                # Opened block right click exception.
+                if cur.opened:
+                    os.system('clear')
+                    print("You can right click closed block only.\n")
+                    continue
                 self.right_click(row, col)
             else:
-                self.count_flag(row, col)
-                cur = self.board.block_list[row][col]
-                
+                # Closed block chord exception.
                 if not cur.opened:
-                    # Closed block chord exception.
                     os.system('clear')
-                    print("You can chord opened block only. Please try again.\n")
+                    print("You can chord opened block only.\n")
                     continue
                 
+                # Flag num and block num mismatch exception.
                 if not self.count_adj_flag(row, col) == cur.n_adj_bomb:
-                    # Flag num and block num mismatch exception.
                     os.system('clear')
-                    print("You can only chord when the number of flags matches the block number. Please try again.\n")
+                    print("You can only chord when the number of flags matches the block number.\n")
                     continue
                 
                 self.chord(row, col)
             
             os.system('clear')
+        
+        self.victory()
 
     def run(self):
-        print("Minesweeper v2.0\nⓒ  2021 Kyeongjin Mun, Seungwon Lee All Rights Reserved.\n")
-        level = self.select_level()
-        self.level = self.level_info[level]
+        os.system('clear')
+        print("MINESWEEPER 2\n\nⓒ  2021 Kyeongjin Mun, Seungwon Lee All Rights Reserved.\n")
+        self.level = self.select_level()
         self.generate_board()
         self.main()
 
