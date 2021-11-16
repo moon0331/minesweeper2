@@ -19,7 +19,7 @@ class Agent():
     """
 
     def __init__(self):
-        self.board_info = {1: (4, 4, 3), 2: (16, 16, 40), 3: (16, 30, 99)}
+        self.board_info = {1: (9, 9, 10), 2: (16, 16, 40), 3: (16, 30, 99)}
         self.time = 0  # Temporary
         self.click = 0
     
