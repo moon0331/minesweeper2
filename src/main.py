@@ -5,7 +5,7 @@
 
 import os
 import sys
-import time
+# import time  # Deprecated
 from collections import deque
 
 # Scheduled to change using __init__.py if possible

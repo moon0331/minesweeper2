@@ -14,6 +14,7 @@ class Block:
         self.flaged = False
         self.mark = '■'
 
+    # Deprecated -> src/main
     def left_click(self):
         if not self.selected:
             self.selected = True

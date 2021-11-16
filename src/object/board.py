@@ -27,7 +27,7 @@ class Board:
         self.width = width
         self.n_bomb = n_bomb
 
-        # Deprecated
+        # Deprecated -> self.remain_block
         self.remain_bomb = n_bomb # log
 
         self.bomb_loc = set()
@@ -68,7 +68,7 @@ class Board:
             for c in range(width):
                 self.block_list[r][c].n_adj_bomb = bomb_distance[r][c]
 
-    # Deprecated
+    # Deprecated -> src/main/left_click
     def select(self, loc):
         height, width = self.height, self.width
         stack = [loc]
