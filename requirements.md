@@ -7,7 +7,11 @@
 
 혹시 버그를 발견한다면 제보 바람
 
-Reference: Minesweeper Online(https://minesweeper.online/ko/)
+## Reference
+
+Game: Minesweeper Online(https://minesweeper.online/ko/)
+
+Code convention: Tensorflow(https://github.com/tensorflow/tensorflow)
 
 # 1. 게임판 출력
 
@@ -49,4 +53,5 @@ Minesweeper Online에서는 3BV(클리어하는데 필요한 최소 클릭 수)�
 # 더 해볼 만한 것들(?)
 - 1초마다 화면에서 시간 바뀌게 하기(-> GUI로 작업 넘김. CLI에선 불가능할듯)
 - chord에서 깃발 위치 잘못 표시했을때 그 깃발 위치 표시 and 터뜨린 지뢰 표시(완료)
-- 처음 클릭에서 지뢰 안나오게 하기(이건 좀 어려울듯?)
+- 처음 클릭에서 지뢰 안나오게 하기(완료)
+- ~~게임오버나 승리 시 리트할 수 있는 기능~~
