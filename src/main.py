@@ -184,7 +184,7 @@ class Agent():
             row, col, act = self.command()
             cur = self.board.block_list[row][col]
             
-            # To avoid first trial game over
+            # To avoid first trial game over.
             if not self.board.init_loc:
                 self.board.init_loc = (row, col)
                 self.board.randomize_bomb()
@@ -240,6 +240,6 @@ class Agent():
         self.main()
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     agent = Agent()
     agent.run()
