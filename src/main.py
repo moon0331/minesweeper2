@@ -1,5 +1,5 @@
 """MINESWEEPER 2
-ⓒ 2021 Kyeongjin Mun, Seungwon Lee All Rights Reserved.
+ⓒ 2021 Kyeongjin Mun, Seungwon Lee. All Rights Reserved.
 """
 
 import os
