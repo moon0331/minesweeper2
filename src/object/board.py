@@ -19,12 +19,6 @@ class Board:
 
     # Divide size into height and width
     def __init__(self, height, width, n_bomb):
-        '''
-        초급: 9×9 넓이의 지뢰밭에 10개의 지뢰
-        중급: 16×16 넓이의 지뢰밭에 40개의 지뢰
-        고급: 30×16 넓이의 지뢰밭에 99개의 지뢰
-        '''
-
         self.height = height
         self.width = width
         self.n_bomb = n_bomb
@@ -36,13 +30,15 @@ class Board:
         self.block_list = None
         self.init_loc = None
 
+        self.miss_block = None
+
         self.remain_flag = n_bomb  # Remaining flag value starts from n_bomb, which can be less than 0.
         self.remain_block = height * width - n_bomb # If this value goes to 0, user wins.
         
-        # self._randomize_bomb() # 지뢰 위치 랜덤 결정
+        # self._randomize_bomb()
         self._generate() # 보드 생성
 
-        # self._calculate_bomb_distance() # 지뢰 개수 세어 저장
+        # self._calculate_bomb_distance()
 
     def randomize_bomb(self):
         self.bomb_loc = set()
@@ -69,6 +65,55 @@ class Board:
         for r in range(height):
             for c in range(width):
                 self.block_list[r][c].n_adj_bomb = bomb_distance[r][c]
+
+    def display_board(self):
+        print(' ', end=' ')
+        for i in range(self.width):
+            print("%d" % i, end=' ')
+        print()
+
+        for row in range(self.height):
+            print("%d" % row, end=' ')
+            for col in range(self.width):
+                cur = self.block_list[row][col]
+                print(cur.mark, end=' ')
+            print()
+        print()
+
+    def display_board_game_over(self):
+        print(' ', end=' ')
+        for i in range(self.width):
+            print("%d" % i, end=' ')
+        print()
+
+        for row in range(self.height):
+            print("%d" % row, end=' ')
+            for col in range(self.width):
+                cur = self.block_list[row][col]
+                if cur.flaged:
+                    print("▶", end=' ') if cur.has_bomb else print("X", end=' ')
+                else:
+                    if cur == self.miss_block:
+                        print("!", end=' ')
+                    else:
+                        print("*", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
+            print()
+        print()
+
+    
+    def display_board_victory(self):
+        print(' ', end=' ')
+        for i in range(self.width):
+            print("%d" % i, end=' ')
+        print()
+
+        for row in range(self.height):
+            print("%d" % row, end=' ')
+            for col in range(self.width):
+                cur = self.block_list[row][col]
+                print("▶", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
+            print()
+        print()
 
     # Deprecated -> src/main/left_click
     # def select(self, loc):

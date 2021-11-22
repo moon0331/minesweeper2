@@ -40,19 +40,19 @@ class Agent():
 
     def display_board(self):
         print(("Remaining Flags: %d" % self.board.remain_flag).ljust(20), "Time: %d\n" % self.time)
-        
-        print(' ', end=' ')
-        for i in range(self.board.width):
-            print("%d" % i, end=' ')
-        print()
+        self.board.display_board()
+        # print(' ', end=' ')
+        # for i in range(self.board.width):
+        #     print("%d" % i, end=' ')
+        # print()
 
-        for row in range(self.board.height):
-            print("%d" % row, end=' ')
-            for col in range(self.board.width):
-                cur = self.board.block_list[row][col]
-                print(cur.mark, end=' ')
-            print()
-        print()
+        # for row in range(self.board.height):
+        #     print("%d" % row, end=' ')
+        #     for col in range(self.board.width):
+        #         cur = self.board.block_list[row][col]
+        #         print(cur.mark, end=' ')
+        #     print()
+        # print()
     
     def command(self):
         while True:
@@ -130,24 +130,25 @@ class Agent():
         print("GAME OVER\n")
         print(("Remaining Flags: %d" % self.board.remain_flag).ljust(20), "Time: %d\n" % self.time)
 
-        print(' ', end=' ')
-        for i in range(self.board.width):
-            print("%d" % i, end=' ')
-        print()
+        self.board.display_board_game_over()
+        # print(' ', end=' ')
+        # for i in range(self.board.width):
+        #     print("%d" % i, end=' ')
+        # print()
 
-        for row in range(self.board.height):
-            print("%d" % row, end=' ')
-            for col in range(self.board.width):
-                cur = self.board.block_list[row][col]
-                if cur.flaged:
-                    print("▶", end=' ') if cur.has_bomb else print("X", end=' ')
-                else:
-                    if cur == self.board.miss_block:
-                        print("!", end=' ')
-                    else:
-                        print("*", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
-            print()
-        print()
+        # for row in range(self.board.height):
+        #     print("%d" % row, end=' ')
+        #     for col in range(self.board.width):
+        #         cur = self.board.block_list[row][col]
+        #         if cur.flaged:
+        #             print("▶", end=' ') if cur.has_bomb else print("X", end=' ')
+        #         else:
+        #             if cur == self.board.miss_block:
+        #                 print("!", end=' ')
+        #             else:
+        #                 print("*", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
+        #     print()
+        # print()
         
         print("Time: %f" % self.time)
         print("Clicks: %d\n" % self.click)
@@ -159,18 +160,19 @@ class Agent():
         print("VICTORY!!\n")
         print(("Remaining Flags: %d" % 0).ljust(20), "Time: %d\n" % self.time)
 
-        print(' ', end=' ')
-        for i in range(self.board.width):
-            print("%d" % i, end=' ')
-        print()
+        self.board.display_board_victory()
+        # print(' ', end=' ')
+        # for i in range(self.board.width):
+        #     print("%d" % i, end=' ')
+        # print()
 
-        for row in range(self.board.height):
-            print("%d" % row, end=' ')
-            for col in range(self.board.width):
-                cur = self.board.block_list[row][col]
-                print("▶", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
-            print()
-        print()
+        # for row in range(self.board.height):
+        #     print("%d" % row, end=' ')
+        #     for col in range(self.board.width):
+        #         cur = self.board.block_list[row][col]
+        #         print("▶", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
+        #     print()
+        # print()
         
         print("Time: %f" % self.time)
         print("Clicks: %d\n" % self.click)
