@@ -1,4 +1,4 @@
-"""MINESWEEPER 2
+"""Minesweeper 2.0
 ⓒ 2021 Kyeongjin Mun, Seungwon Lee. All Rights Reserved.
 """
 
@@ -191,7 +191,7 @@ class Agent(Board):
 
     def run(self):
         os.system('clear')
-        print("MINESWEEPER 2\n\nⓒ  2021 Kyeongjin Mun, Seungwon Lee All Rights Reserved.\n")
+        print("Minesweeper 2.0\n\nⓒ  2021 Kyeongjin Mun, Seungwon Lee All Rights Reserved.\n")
         self.level = self.select_level()
         self.generate_board()
         self.main()
