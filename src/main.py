@@ -12,7 +12,7 @@ from object.board import Board
 from object.board import adj_loc
 
 
-class Agent():
+class Agent(Board):
     """A class which is responsible for whole game management such as level selection, displaying board, user input,
     main sequence, results, etc., that is almost all about this game.
     """
@@ -36,31 +36,16 @@ class Agent():
 
     def generate_board(self):
         height, width, n_bomb = self.board_info[self.level]
-        self.board = Board(height, width, n_bomb)
-
-    def display_board(self):
-        print(("Remaining Flags: %d" % self.board.remain_flag).ljust(20), "Time: %d\n" % self.time)
-        self.board.display_board()
-        # print(' ', end=' ')
-        # for i in range(self.board.width):
-        #     print("%d" % i, end=' ')
-        # print()
-
-        # for row in range(self.board.height):
-        #     print("%d" % row, end=' ')
-        #     for col in range(self.board.width):
-        #         cur = self.board.block_list[row][col]
-        #         print(cur.mark, end=' ')
-        #     print()
-        # print()
+        super().__init__(height, width, n_bomb)
     
     def command(self):
         while True:
+            print(("Remaining Flags: %d" % self.remain_flag).ljust(20), "Time: %d\n" % self.time)
             self.display_board()
-            print("Row: 0 ~ %d Column: 0 ~ %d Action: 1. left click 2. right click 3. chord" % (self.board.height - 1, self.board.width - 1))
+            print("Row: 0 ~ %d Column: 0 ~ %d Action: 1. left click 2. right click 3. chord" % (self.height - 1, self.width - 1))
             try:
                 row, col, act = map(int, input("Enter your input such as 'row column action': ").split())
-                if 0 <= row < self.board.height and 0 <= col < self.board.width and 1 <= act <= 3:
+                if 0 <= row < self.height and 0 <= col < self.width and 1 <= act <= 3:
                     self.click += 1
                     return row, col, act
                 else:
@@ -71,84 +56,66 @@ class Agent():
     
     def count_adj_flag(self, row, col):
         adj_flag = 0
-        for adj_r, adj_c in adj_loc(row, col, self.board.height, self.board.width):
-            if self.board.block_list[adj_r][adj_c].flaged:
+        for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
+            if self.block_list[adj_r][adj_c].flaged:
                 adj_flag += 1
         return adj_flag
 
     def left_click(self, row, col):
-        cur = self.board.block_list[row][col]
+        cur = self.block_list[row][col]
         if cur.has_bomb:
-            self.board.miss_block = cur
+            self.miss_block = cur
             self.game_over()
         
         else:
             q = deque([(row, col)])
-            vis = [[0] * self.board.width for _ in range(self.board.height)]
+            vis = [[0] * self.width for _ in range(self.height)]
             vis[row][col] = 1
 
             while q:
                 r, c = q.popleft()
-                cur = self.board.block_list[r][c]
+                cur = self.block_list[r][c]
                 
                 if not cur.opened:
                     cur.opened = True
                     cur.mark = '%d' % cur.n_adj_bomb if cur.n_adj_bomb else '□'
-                    self.board.remain_block -= 1
+                    self.remain_block -= 1
                 
-                if not self.board.block_list[r][c].n_adj_bomb:
-                    for adj_r, adj_c in adj_loc(r, c, self.board.height, self.board.width):
+                if not self.block_list[r][c].n_adj_bomb:
+                    for adj_r, adj_c in adj_loc(r, c, self.height, self.width):
                         if not vis[adj_r][adj_c]:
                             q.append((adj_r, adj_c))
                             vis[adj_r][adj_c] = 1
 
     def right_click(self, row, col):
-        cur = self.board.block_list[row][col]
+        cur = self.block_list[row][col]
         cur.flaged = not cur.flaged
 
         if cur.flaged:
-            self.board.remain_flag -= 1
+            self.remain_flag -= 1
             cur.mark = '▶'
         else:
-            self.board.remain_flag += 1
+            self.remain_flag += 1
             cur.mark = '■'
     
     def chord(self, row, col):
-        for adj_r, adj_c in adj_loc(row, col, self.board.height, self.board.width):
-            cur = self.board.block_list[adj_r][adj_c]
+        for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
+            cur = self.block_list[adj_r][adj_c]
             if cur.has_bomb != cur.flaged:
-                self.board.miss_block = cur
+                self.miss_block = cur
                 self.game_over()
 
-        for adj_r, adj_c in adj_loc(row, col, self.board.height, self.board.width):
-            cur = self.board.block_list[adj_r][adj_c]
+        for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
+            cur = self.block_list[adj_r][adj_c]
             if not cur.flaged and not cur.opened:
                 self.left_click(adj_r, adj_c)
     
     def game_over(self):
         os.system('clear')
         print("GAME OVER\n")
-        print(("Remaining Flags: %d" % self.board.remain_flag).ljust(20), "Time: %d\n" % self.time)
-
-        self.board.display_board_game_over()
-        # print(' ', end=' ')
-        # for i in range(self.board.width):
-        #     print("%d" % i, end=' ')
-        # print()
-
-        # for row in range(self.board.height):
-        #     print("%d" % row, end=' ')
-        #     for col in range(self.board.width):
-        #         cur = self.board.block_list[row][col]
-        #         if cur.flaged:
-        #             print("▶", end=' ') if cur.has_bomb else print("X", end=' ')
-        #         else:
-        #             if cur == self.board.miss_block:
-        #                 print("!", end=' ')
-        #             else:
-        #                 print("*", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
-        #     print()
-        # print()
+        print(("Remaining Flags: %d" % self.remain_flag).ljust(20), "Time: %d\n" % self.time)
+        
+        self.display_board_game_over()
         
         print("Time: %f" % self.time)
         print("Clicks: %d\n" % self.click)
@@ -160,19 +127,7 @@ class Agent():
         print("VICTORY!!\n")
         print(("Remaining Flags: %d" % 0).ljust(20), "Time: %d\n" % self.time)
 
-        self.board.display_board_victory()
-        # print(' ', end=' ')
-        # for i in range(self.board.width):
-        #     print("%d" % i, end=' ')
-        # print()
-
-        # for row in range(self.board.height):
-        #     print("%d" % row, end=' ')
-        #     for col in range(self.board.width):
-        #         cur = self.board.block_list[row][col]
-        #         print("▶", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
-        #     print()
-        # print()
+        self.display_board_victory()
         
         print("Time: %f" % self.time)
         print("Clicks: %d\n" % self.click)
@@ -182,15 +137,15 @@ class Agent():
         os.system('clear')
         
         # Only 0-index is used for both backend and user input.
-        while self.board.remain_block:
+        while self.remain_block:
             row, col, act = self.command()
-            cur = self.board.block_list[row][col]
+            cur = self.block_list[row][col]
             
             # To avoid first trial game over.
-            if not self.board.init_loc:
-                self.board.init_loc = (row, col)
-                self.board.randomize_bomb()
-                self.board.calculate_bomb_distance()
+            if not self.init_loc:
+                self.init_loc = (row, col)
+                self.randomize_bomb()
+                self.calculate_bomb_distance()
             
             if act == 1:
                 # Opended block left click exception.
