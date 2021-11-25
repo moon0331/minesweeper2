@@ -1,17 +1,11 @@
 앞으로 진행해야 할 일
 ====================
 
-# 공지사항
-
-현재 모든 작업과 테스트를 마친 상태
-
-혹시 버그를 발견한다면 제보 바람
+여기서 만든 Agent를 이용해서 state를 추출한 뒤에 main에서 RL train 및 test를 진행할 계획
 
 ## Reference
 
-Game: Minesweeper Online(https://minesweeper.online/ko/)
-
-Code convention: Tensorflow(https://github.com/tensorflow/tensorflow)
+Minesweeper Online(https://minesweeper.online/ko/)
 
 # 1. 게임판 출력
 
@@ -51,7 +45,12 @@ Minesweeper Online에서는 3BV(클리어하는데 필요한 최소 클릭 수)�
 - - -
 
 # 더 해볼 만한 것들
-- ~~1초마다 화면에서 시간 바뀌게 하기~~
-- chord에서 깃발 위치 잘못 표시했을때 그 깃발 위치 표시 and 터뜨린 지뢰 표시
-- 처음 클릭에서 지뢰 안나오게 하기
-- ~~게임오버나 승리 시 리트할 수 있는 기능~~
+GUI 전환 폐기 및 RL로의 전환으로 인해 몇몇 작업의 진행 상황이 변경되었음
+
+- 완료
+    - chord에서 깃발 위치 잘못 표시했을때 그 깃발 위치 표시 and 터뜨린 지뢰 표시
+    - 처음 클릭에서 지뢰 안나오게 하기
+
+- 중단
+    - 1초마다 화면에서 시간 바뀌게 하기
+    - 게임오버나 승리 시 리트할 수 있게 하기
