@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-
 class QNet(nn.Module):
+    
     def __init__(self, action_size):
         super(QNet, self).__init__()
         self.fc1 = nn.Linear(4, 128)
