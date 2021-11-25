@@ -27,7 +27,7 @@ class Board:
         # self.remain_bomb = n_bomb # log
 
         self.bomb_loc = set()
-        self.block_list = None
+        self.block_lst = None
         self.init_loc = None
 
         self.miss_block = None
@@ -49,11 +49,11 @@ class Board:
                 self.bomb_loc.add((x, y))
         
         for r, c in self.bomb_loc:
-            self.block_list[r][c]._set_bomb()
+            self.block_lst[r][c]._set_bomb()
 
     def _generate(self):
         height, width = self.height, self.width
-        self.block_list = [[Block((row, col)) for col in range(width)] for row in range(height)]
+        self.block_lst = [[Block((row, col)) for col in range(width)] for row in range(height)]
 
     def calculate_bomb_distance(self):
         height, width = self.height, self.width
@@ -64,7 +64,7 @@ class Board:
 
         for r in range(height):
             for c in range(width):
-                self.block_list[r][c].n_adj_bomb = bomb_distance[r][c]
+                self.block_lst[r][c].n_adj_bomb = bomb_distance[r][c]
 
     def display_board(self):
         print(' ', end=' ')
@@ -75,7 +75,7 @@ class Board:
         for row in range(self.height):
             print("%d" % row, end=' ')
             for col in range(self.width):
-                cur = self.block_list[row][col]
+                cur = self.block_lst[row][col]
                 print(cur.mark, end=' ')
             print()
         print()
@@ -89,7 +89,7 @@ class Board:
         for row in range(self.height):
             print("%d" % row, end=' ')
             for col in range(self.width):
-                cur = self.block_list[row][col]
+                cur = self.block_lst[row][col]
                 if cur.flaged:
                     print("▶", end=' ') if cur.has_bomb else print("X", end=' ')
                 else:
@@ -110,7 +110,7 @@ class Board:
         for row in range(self.height):
             print("%d" % row, end=' ')
             for col in range(self.width):
-                cur = self.block_list[row][col]
+                cur = self.block_lst[row][col]
                 print("▶", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
             print()
         print()
@@ -121,16 +121,16 @@ class Board:
     #     stack = [loc]
     #     while stack:
     #         r, c = stack.pop()
-    #         if self.block_list[r][c].click():
+    #         if self.block_lst[r][c].click():
     #             print('Game END!')
     #             # exit(1)
     #         else:
     #             for adj_r, adj_c in adj_loc(r, c, height, width):
-    #                 if not self.block_list[r][c].selected:
+    #                 if not self.block_lst[r][c].selected:
     #                     self.select((adj_r, adj_c))
 
 #     def print_board(self, raw = False, flatten=False, add_bomb_loc=False):
-#         for line in self.block_list:
+#         for line in self.block_lst:
 #             print(" | ".join([str(x) for x in line]))
 
 

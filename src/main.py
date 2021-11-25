@@ -57,12 +57,12 @@ class Agent(Board):
     def count_adj_flag(self, row, col):
         adj_flag = 0
         for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
-            if self.block_list[adj_r][adj_c].flaged:
+            if self.block_lst[adj_r][adj_c].flaged:
                 adj_flag += 1
         return adj_flag
 
     def left_click(self, row, col):
-        cur = self.block_list[row][col]
+        cur = self.block_lst[row][col]
         if cur.has_bomb:
             self.miss_block = cur
             self.game_over()
@@ -74,21 +74,21 @@ class Agent(Board):
 
             while q:
                 r, c = q.popleft()
-                cur = self.block_list[r][c]
+                cur = self.block_lst[r][c]
                 
                 if not cur.opened:
                     cur.opened = True
                     cur.mark = '%d' % cur.n_adj_bomb if cur.n_adj_bomb else '□'
                     self.remain_block -= 1
                 
-                if not self.block_list[r][c].n_adj_bomb:
+                if not self.block_lst[r][c].n_adj_bomb:
                     for adj_r, adj_c in adj_loc(r, c, self.height, self.width):
                         if not vis[adj_r][adj_c]:
                             q.append((adj_r, adj_c))
                             vis[adj_r][adj_c] = 1
 
     def right_click(self, row, col):
-        cur = self.block_list[row][col]
+        cur = self.block_lst[row][col]
         cur.flaged = not cur.flaged
 
         if cur.flaged:
@@ -100,13 +100,13 @@ class Agent(Board):
     
     def chord(self, row, col):
         for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
-            cur = self.block_list[adj_r][adj_c]
+            cur = self.block_lst[adj_r][adj_c]
             if cur.has_bomb != cur.flaged:
                 self.miss_block = cur
                 self.game_over()
 
         for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
-            cur = self.block_list[adj_r][adj_c]
+            cur = self.block_lst[adj_r][adj_c]
             if not cur.flaged and not cur.opened:
                 self.left_click(adj_r, adj_c)
     
@@ -139,7 +139,7 @@ class Agent(Board):
         # Only 0-index is used for both backend and user input.
         while self.remain_block:
             row, col, act = self.command()
-            cur = self.block_list[row][col]
+            cur = self.block_lst[row][col]
             
             # To avoid first trial game over.
             if not self.init_loc:
