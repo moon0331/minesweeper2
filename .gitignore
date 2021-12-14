@@ -1,3 +1,2 @@
 __pycache__
-src/models/torch/test.py
-src/test.py
+test.py

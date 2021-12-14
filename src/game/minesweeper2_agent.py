@@ -1,7 +1,3 @@
-"""Minesweeper 2
-ⓒ 2021 Kyeongjin Mun, Seungwon Lee. All Rights Reserved.
-"""
-
 import os
 import sys
 # import time  # Deprecated
@@ -12,7 +8,7 @@ from object.board import Board
 from object.board import adj_loc
 
 
-class Agent(Board):
+class Minesweeper2Agent(Board):
     """A class which is responsible for whole game management such as level selection, displaying board, user input,
     main sequence, results, etc., that is almost all about this game.
     """
@@ -36,7 +32,7 @@ class Agent(Board):
 
     def generate_board(self):
         height, width, n_bomb = self.board_info[self.level]
-        super(Agent, self).__init__(height, width, n_bomb)
+        super(Minesweeper2Agent, self).__init__(height, width, n_bomb)
     
     def command(self):
         while True:
@@ -57,12 +53,12 @@ class Agent(Board):
     def count_adj_flag(self, row, col):
         adj_flag = 0
         for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
-            if self.block_lst[adj_r][adj_c].flaged:
+            if self.blocks[adj_r][adj_c].flaged:
                 adj_flag += 1
         return adj_flag
 
     def left_click(self, row, col):
-        cur = self.block_lst[row][col]
+        cur = self.blocks[row][col]
         if cur.has_bomb:
             self.miss_block = cur
             self.game_over()
@@ -74,21 +70,21 @@ class Agent(Board):
 
             while q:
                 r, c = q.popleft()
-                cur = self.block_lst[r][c]
+                cur = self.blocks[r][c]
                 
                 if not cur.opened:
                     cur.opened = True
                     cur.mark = '%d' % cur.n_adj_bomb if cur.n_adj_bomb else '□'
                     self.remain_block -= 1
                 
-                if not self.block_lst[r][c].n_adj_bomb:
+                if not self.blocks[r][c].n_adj_bomb:
                     for adj_r, adj_c in adj_loc(r, c, self.height, self.width):
                         if not vis[adj_r][adj_c]:
                             q.append((adj_r, adj_c))
                             vis[adj_r][adj_c] = 1
 
     def right_click(self, row, col):
-        cur = self.block_lst[row][col]
+        cur = self.blocks[row][col]
         cur.flaged = not cur.flaged
 
         if cur.flaged:
@@ -100,13 +96,13 @@ class Agent(Board):
     
     def chord(self, row, col):
         for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
-            cur = self.block_lst[adj_r][adj_c]
+            cur = self.blocks[adj_r][adj_c]
             if cur.has_bomb != cur.flaged:
                 self.miss_block = cur
                 self.game_over()
 
         for adj_r, adj_c in adj_loc(row, col, self.height, self.width):
-            cur = self.block_lst[adj_r][adj_c]
+            cur = self.blocks[adj_r][adj_c]
             if not cur.flaged and not cur.opened:
                 self.left_click(adj_r, adj_c)
     
@@ -143,7 +139,7 @@ class Agent(Board):
         # Only 0-index is used for both backend and user input.
         while self.remain_block:
             row, col, act = self.command()
-            cur = self.block_lst[row][col]
+            cur = self.blocks[row][col]
             
             # To avoid first trial game over.
             if not self.init_loc:
