@@ -50,8 +50,7 @@ class DQN(tf.keras.Model):
     def call(self, x):
         x = self.fc1(x)
         x = self.fc2(x)
-        x = self.fc3(x)
-        return x
+        return self.fc3(x)
 
 
 class TF2DQNAgent:
@@ -77,11 +76,16 @@ class TF2DQNAgent:
         self.q_net.compile(optimizer='adam', loss='mse')
         self.target_update()
 
-        self.loss_fn = tf.keras.losses.MeanSquaredError()
+        # self.loss_fn = tf.keras.losses.MeanSquaredError()
+        self.loss_fn = tf.keras.losses.Huber()
         self.optimizer = tf.keras.optimizers.Adam()
 
     @tf.function
     def learn(self, obs, acs, next_obs, rewards, dones):
+        # print(self.q_target_net(next_obs))
+        # print(tf.reduce_max(self.q_target_net(next_obs), axis=1, keepdims=True))
+        # print()
+
         q_target = rewards + (1 - dones) * self.gamma * tf.reduce_max(self.q_target_net(next_obs), axis=1, keepdims=True)
 
         with tf.GradientTape() as tape:
@@ -115,7 +119,7 @@ class TF2DQNAgent:
                     rewards.append(reward)
                     self.target_update()
                     # print("Epochs: %d / Score: %d" % (epochs + 1, reward))
-                    print("n_episode: {}, score: {:1f}, n_buffer: {}, eps: {:1f}%".format(epochs, reward, len(self.replay_buffer), self.epsilon * 100))
+                    print("n_episode: {}, score: {:.1f}, n_buffer: {}, eps: {:.1f}%".format(epochs, reward, len(self.replay_buffer), self.epsilon * 100))
                     break
 
                 # self.env.render()
@@ -153,7 +157,7 @@ class TF2DQNAgent:
 
 if __name__ == '__main__':
     tf.keras.backend.set_floatx('float32')
-    env = gym.make('CartPole-v0')
+    env = gym.make('CartPole-v1')
 
     obs_dim = env.observation_space.shape
     acs_dim = None

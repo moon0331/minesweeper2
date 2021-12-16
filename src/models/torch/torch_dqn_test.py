@@ -110,15 +110,12 @@ class TorchDQNAgent:
                 
             if memory.size()>2000:
                 self.train(q, q_target, memory, optimizer)
-            
-            print("n_episode: {}, scord: {:.1f}, n_buffer: {}, eps: {:.1f}%".format(n_epi, score, memory.size(), epsilon * 100))
-            score = 0.0
 
             if n_epi % print_interval == 0 and n_epi:
                 q_target.load_state_dict(q.state_dict())
-                # print("n_episode :{}, score : {:.1f}, n_buffer : {}, eps : {:.1f}%".format(
-                #         n_epi, score/print_interval, memory.size(), epsilon*100))
-                # score = 0.0
+                print("n_episode :{}, score : {:.1f}, n_buffer : {}, eps : {:.1f}%".format(
+                        n_epi, score/print_interval, memory.size(), epsilon*100))
+                score = 0.0
         
         env.close()
 
