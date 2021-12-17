@@ -173,6 +173,6 @@ if __name__ == '__main__':
     else:
         raise NotImplementedError('Not implemented')
     
-    agent = TF2DQNAgent(env, obs_dim, acs_dim, 10000, gamma=GAMMA, buffer_size=BUFFER_SIZE, batch_size=BATCH_SIZE,
+    tf2_dqn_agent = TF2DQNAgent(env, obs_dim, acs_dim, 10000, gamma=GAMMA, buffer_size=BUFFER_SIZE, batch_size=BATCH_SIZE,
                         target_update_iter=TARGET_UPDATE_ITER)
-    agent.train()
+    tf2_dqn_agent.train()

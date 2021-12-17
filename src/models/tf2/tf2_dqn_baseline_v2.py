@@ -131,5 +131,5 @@ class Agent:
             # print("n_episode: {}, score: {:.1f}, n_buffer: {}, eps: {:.1f}%".format(episode, score, len(self.memory), epsilon * 100))
 
 if __name__ == '__main__':
-    agent = Agent()
-    agent.run()
+    tf2_dqn_agent = Agent()
+    tf2_dqn_agent.run()
