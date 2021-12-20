@@ -14,6 +14,7 @@ import gym
 
 
 class DQN(Model):
+    
     def __init__(self):
         super(DQN, self).__init__()
         self.layer1 = tf.keras.layers.Dense(64, activation='relu')
@@ -26,7 +27,9 @@ class DQN(Model):
         value = self.value(layer2)
         return value
 
+
 class Agent:
+    
     def __init__(self):
         # hyper parameters
         self.lr = 0.0005
@@ -90,9 +93,7 @@ class Agent:
         dqn_grads = tape.gradient(error, dqn_variable)
         self.opt.apply_gradients(zip(dqn_grads, dqn_variable))
 
-
     def run(self):
-
         env = gym.make('CartPole-v1')
         episode = 0
         step = 0
@@ -129,6 +130,7 @@ class Agent:
             
             # print(episode, score)
             # print("n_episode: {}, score: {:.1f}, n_buffer: {}, eps: {:.1f}%".format(episode, score, len(self.memory), epsilon * 100))
+
 
 if __name__ == '__main__':
     tf2_dqn_agent = Agent()
