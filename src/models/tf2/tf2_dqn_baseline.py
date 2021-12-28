@@ -124,7 +124,7 @@ class TF2DQNAgent:
                     print("n_episode: {}, score: {:.1f}, n_buffer: {}, eps: {:.1f}%".format(epochs, reward, len(self.replay_buffer), self.epsilon * 100))
                     break
 
-                # self.env.render()
+                self.env.render()
 
                 if self.global_steps > 1000:
                     transitions = self.replay_buffer.sample(batch_size=self.batch_size)
