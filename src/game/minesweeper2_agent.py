@@ -1,8 +1,11 @@
+from collections import deque
+
 from object.board import Board
 from object.board import adj_loc
+from models.torch.torch_dqn import TorchDQNAgent
 
 
-class Minesweeper2Agent(Board):
+class Minesweeper2Agent(Board, TorchDQNAgent):
     """A class which is responsible for whole game management such as level selection, displaying board, user input,
     main sequence, results, etc., that is almost all about this game.
     """
@@ -12,6 +15,7 @@ class Minesweeper2Agent(Board):
         self.board_info = {1: (9, 9, 10), 2: (16, 16, 40), 3: (16, 30, 99)}
         self.time = 0
         self.click = 0
+        self.reward = 0  # For RL
     
     # def select_level(self):
     #     while True:
@@ -29,21 +33,21 @@ class Minesweeper2Agent(Board):
         height, width, n_bomb = self.board_info[self.level]
         super(Minesweeper2Agent, self).__init__(height, width, n_bomb)
     
-    def command(self):
-        while True:
-            print(("Remaining Flags: %d" % self.remain_flag).ljust(20), "Time: %d\n" % self.time)
-            self.display_board()
-            print("Row: 0 ~ %d Column: 0 ~ %d Action: 1. left click 2. right click 3. chord" % (self.height - 1, self.width - 1))
-            try:
-                row, col, act = map(int, input("Enter your input such as 'row column action': ").split())
-                if 0 <= row < self.height and 0 <= col < self.width and 1 <= act <= 3:
-                    self.click += 1
-                    return row, col, act
-                else:
-                    raise
-            except:
-                os.system('clear')
-                print("Wrong input.\n")
+    # def command(self):
+    #     while True:
+    #         print(("Remaining Flags: %d" % self.remain_flag).ljust(20), "Time: %d\n" % self.time)
+    #         self.display_board()
+    #         print("Row: 0 ~ %d Column: 0 ~ %d Action: 1. left click 2. right click 3. chord" % (self.height - 1, self.width - 1))
+    #         try:
+    #             row, col, act = map(int, input("Enter your input such as 'row column action': ").split())
+    #             if 0 <= row < self.height and 0 <= col < self.width and 1 <= act <= 3:
+    #                 self.click += 1
+    #                 return row, col, act
+    #             else:
+    #                 raise
+    #         except:
+    #             # os.system('clear')
+    #             print("Wrong input.\n")
     
     def count_adj_flag(self, row, col):
         adj_flag = 0
@@ -102,38 +106,52 @@ class Minesweeper2Agent(Board):
                 self.left_click(adj_r, adj_c)
     
     def game_over(self):
-        os.system('clear')
-        print("GAME OVER\n")
-        print(("Remaining Flags: %d" % self.remain_flag).ljust(20), "Time: %d\n" % self.time)
-        
-        self.display_board_game_over()
-        
-        print("Time: %f" % self.time)
-        print("Clicks: %d\n" % self.click)
+        self.reward -= 100
 
-        sys.exit(0)  # Force termination
+        # os.system('clear')
+        # print("GAME OVER\n")
+        # print(("Remaining Flags: %d" % self.remain_flag).ljust(20), "Time: %d\n" % self.time)
+        
+        # self.display_board_game_over()
+        
+        # print("Time: %f" % self.time)
+        # print("Clicks: %d\n" % self.click)
+
+        # sys.exit(0)  # Force termination
     
     def victory(self):
-        os.system('clear')
-        print("VICTORY!!\n")
-        print(("Remaining Flags: %d" % 0).ljust(20), "Time: %d\n" % self.time)
+        self.reward += 100
 
-        self.display_board_victory()
+        # os.system('clear')
+        # print("VICTORY!!\n")
+        # print(("Remaining Flags: %d" % 0).ljust(20), "Time: %d\n" % self.time)
+
+        # self.display_board_victory()
         
-        print("Time: %f" % self.time)
-        print("Clicks: %d\n" % self.click)
+        # print("Time: %f" % self.time)
+        # print("Clicks: %d\n" % self.click)
 
     def run(self):
         """Main sequence of playing Minesweeper 2."""
         # os.system('clear')
         # print("Minesweeper 2.0\n\nⓒ  2021 Kyeongjin Mun, Seungwon Lee All Rights Reserved.\n")
         # self.level = self.select_level()
+        
         self.generate_board()
+
         # os.system('clear')
         
         # Only 0-index is used for both backend and user input.
         while self.remain_block:
-            row, col, act = self.command()
+            # Need to preprocess.
+            state = None
+            act = self.predict(state)
+            # row, col, act = self.command()
+            # Step process
+            
+            # Should convert act(0 ~ row * col * 3 - 1) to (row, col, cmd)
+            # self.convert_act()
+            
             cur = self.blocks[row][col]
             
             # To avoid first trial game over.
@@ -145,14 +163,14 @@ class Minesweeper2Agent(Board):
             if act == 1:
                 # Opended block left click exception.
                 if cur.opened:
-                    os.system('clear')
-                    print("You can left click closed block only.\n")
+                    # os.system('clear')
+                    # print("You can left click closed block only.\n")
                     continue
                     
                 # Flaged block left click exception.
                 if cur.flaged:
-                    os.system('clear')
-                    print("You can left click non-flaged block only.\n")
+                    # os.system('clear')
+                    # print("You can left click non-flaged block only.\n")
                     continue
 
                 self.left_click(row, col)
@@ -160,26 +178,27 @@ class Minesweeper2Agent(Board):
             elif act == 2:
                 # Opened block right click exception.
                 if cur.opened:
-                    os.system('clear')
-                    print("You can right click closed block only.\n")
+                    # os.system('clear')
+                    # print("You can right click closed block only.\n")
                     continue
                 self.right_click(row, col)
             
             else:
                 # Closed block chord exception.
                 if not cur.opened:
-                    os.system('clear')
-                    print("You can chord opened block only.\n")
+                    # os.system('clear')
+                    # print("You can chord opened block only.\n")
                     continue
                 
                 # Flag num and block num mismatch exception.
                 if self.count_adj_flag(row, col) != cur.n_adj_bomb:
-                    os.system('clear')
-                    print("You can only chord when the number of flags matches the block number.\n")
+                    # os.system('clear')
+                    # print("You can only chord when the number of flags matches the block number.\n")
                     continue
                 
                 self.chord(row, col)
             
-            os.system('clear')
+            # os.system('clear')
+            self.reward -= 1
         
         self.victory()

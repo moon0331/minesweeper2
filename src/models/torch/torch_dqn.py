@@ -8,8 +8,6 @@ import torch.optim as optim
 import torch.nn.functional as F
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-from game.minesweeper2_agent import Minesweeper2Agent
-
 DISCOUNT_RATE = 0.98
 LEARNING_RATE = 0.0005
 REPLAY_MEMORY = 50000
@@ -59,10 +57,12 @@ class ReplayMemory:
         return len(self.memory)
 
 
-class TorchDQN:
+class TorchDQNAgent:
     
     def __init__(self, args):        
-        # print("Started Pacman DQN algorithm")
+        print("=" * 100)
+        print("Started Minesweeper2 DQN algorithm")
+        print("=" * 100)
 
         # self.double = args['double']
         # self.multistep = args['multistep']
@@ -226,15 +226,6 @@ class TorchDQN:
         #     res.extend([-1, -1, -1, -1])
 
         return np.array(res)
-
-
-class TorchDQNAgent(Minesweeper2Agent):
-
-    def __init__(self):
-        pass
-
-    def run(self):
-        super(TorchDQNAgent, self).run()
 
 
 class DQN(nn.Module):
