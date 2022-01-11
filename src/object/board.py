@@ -15,30 +15,22 @@ def adj_loc(x, y, xmax, ymax):
 
 
 class Board:
-    """Board definition"""
-
-    # Divide size into height and width
+    # size를 height, width로 분리
     def __init__(self, height, width, n_bomb):
         self.height = height
         self.width = width
         self.n_bomb = n_bomb
 
-        # Deprecated -> self.remain_block
-        # self.remain_bomb = n_bomb # log
-
         self.bomb_loc = set()
-        self.block_lst = None
+        self.blocks = None
         self.init_loc = None
 
         self.miss_block = None
 
-        self.remain_flag = n_bomb  # Remaining flag value starts from n_bomb, which can be less than 0.
-        self.remain_block = height * width - n_bomb # If this value goes to 0, user wins.
+        self.remain_flag = n_bomb  # 남은 깃발 수는 폭탄 수에서부터 시작되며 0보다 작아질 수 있음
+        self.remain_block = height * width - n_bomb  # 남은 블럭 수가 0이 되면 승리
         
-        # self._randomize_bomb()
         self._generate() # 보드 생성
-
-        # self._calculate_bomb_distance()
 
     def randomize_bomb(self):
         self.bomb_loc = set()
@@ -49,11 +41,11 @@ class Board:
                 self.bomb_loc.add((x, y))
         
         for r, c in self.bomb_loc:
-            self.block_lst[r][c]._set_bomb()
+            self.blocks[r][c]._set_bomb()
 
     def _generate(self):
         height, width = self.height, self.width
-        self.block_lst = [[Block((row, col)) for col in range(width)] for row in range(height)]
+        self.blocks = [[Block((row, col)) for col in range(width)] for row in range(height)]
 
     def calculate_bomb_distance(self):
         height, width = self.height, self.width
@@ -64,7 +56,7 @@ class Board:
 
         for r in range(height):
             for c in range(width):
-                self.block_lst[r][c].n_adj_bomb = bomb_distance[r][c]
+                self.blocks[r][c].n_adj_bomb = bomb_distance[r][c]
 
     def display_board(self):
         print(' ', end=' ')
@@ -75,7 +67,7 @@ class Board:
         for row in range(self.height):
             print("%d" % row, end=' ')
             for col in range(self.width):
-                cur = self.block_lst[row][col]
+                cur = self.blocks[row][col]
                 print(cur.mark, end=' ')
             print()
         print()
@@ -89,7 +81,7 @@ class Board:
         for row in range(self.height):
             print("%d" % row, end=' ')
             for col in range(self.width):
-                cur = self.block_lst[row][col]
+                cur = self.blocks[row][col]
                 if cur.flaged:
                     print("▶", end=' ') if cur.has_bomb else print("X", end=' ')
                 else:
@@ -100,7 +92,6 @@ class Board:
             print()
         print()
 
-    
     def display_board_victory(self):
         print(' ', end=' ')
         for i in range(self.width):
@@ -110,29 +101,7 @@ class Board:
         for row in range(self.height):
             print("%d" % row, end=' ')
             for col in range(self.width):
-                cur = self.block_lst[row][col]
+                cur = self.blocks[row][col]
                 print("▶", end=' ') if cur.has_bomb else print(cur.mark, end=' ')
             print()
         print()
-
-    # Deprecated -> src/main/left_click
-    # def select(self, loc):
-    #     height, width = self.height, self.width
-    #     stack = [loc]
-    #     while stack:
-    #         r, c = stack.pop()
-    #         if self.block_lst[r][c].click():
-    #             print('Game END!')
-    #             # exit(1)
-    #         else:
-    #             for adj_r, adj_c in adj_loc(r, c, height, width):
-    #                 if not self.block_lst[r][c].selected:
-    #                     self.select((adj_r, adj_c))
-
-#     def print_board(self, raw = False, flatten=False, add_bomb_loc=False):
-#         for line in self.block_lst:
-#             print(" | ".join([str(x) for x in line]))
-
-
-# if __name__ == '__main__':
-#     Board(4, 4, 3).print_board()
