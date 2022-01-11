@@ -1,6 +1,4 @@
 class Block:
-    """Block definition"""
-
     def __init__(self, loc, has_bomb=False):
         self.loc = loc
         self.has_bomb = has_bomb

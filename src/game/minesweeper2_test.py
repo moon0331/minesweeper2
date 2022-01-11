@@ -1,4 +1,8 @@
-"""Minesweeper2 Agent Test"""
+"""
+Minesweeper2Agent 테스트 파일
+
+주석을 모두 한글로 바꿨기 때문에 출력문 또한 한글로 바꿀 예정
+"""
 
 import os
 import sys
@@ -19,9 +23,7 @@ def adj_loc(x, y, xmax, ymax):
 
 
 class Board:
-    """Board definition"""
-
-    # Divide size into height and width
+    # size를 height, width로 분리
     def __init__(self, height, width, n_bomb):
         self.height = height
         self.width = width
@@ -33,8 +35,8 @@ class Board:
 
         self.miss_block = None
 
-        self.remain_flag = n_bomb  # Remaining flag value starts from n_bomb, which can be less than 0.
-        self.remain_block = height * width - n_bomb # If this value goes to 0, user wins.
+        self.remain_flag = n_bomb  # 남은 깃발 수는 폭탄 수에서부터 시작되며 0보다 작아질 수 있음
+        self.remain_block = height * width - n_bomb  # 남은 블럭 수가 0이 되면 승리
         
         self._generate() # 보드 생성
 
@@ -114,7 +116,6 @@ class Board:
 
 
 class Block:
-    """Block definition"""
 
     def __init__(self, loc, has_bomb=False):
         self.loc = loc
@@ -131,10 +132,9 @@ class Block:
 
 
 class Minesweeper2Agent(Board):
-    """A class which is responsible for whole game management such as level selection, displaying board, user input,
-    main sequence, results, etc., that is almost all about this game.
     """
-
+    지뢰찾기 레벨 선택, 보드 출력, 사용자 입력, 메인 알고리즘, 결과 출력 등 게임에 관한 모든 것을 담당하는 클래스
+    """
     def __init__(self, level=1):
         self.level = level
         self.board_info = {1: (9, 9, 10), 2: (16, 16, 40), 3: (16, 30, 99)}
@@ -239,7 +239,7 @@ class Minesweeper2Agent(Board):
         print("Time: %f" % self.time)
         print("Clicks: %d\n" % self.click)
 
-        sys.exit(0)  # Force termination
+        sys.exit(0)  # 게임 오버 시 run 함수 강제 종료
     
     def victory(self):
         os.system('clear')
@@ -252,32 +252,32 @@ class Minesweeper2Agent(Board):
         print("Clicks: %d\n" % self.click)
 
     def run(self):
-        """Main sequence of playing Minesweeper 2."""
+        """Minesweeper 2 메인 알고리즘"""
         os.system('clear')
         print("Minesweeper 2.0\n\nⓒ  2021 Kyeongjin Mun, Seungwon Lee All Rights Reserved.\n")
         self.level = self.select_level()
         self.generate_board()
         os.system('clear')
         
-        # Only 0-index is used for both backend and user input.
+        # 0-index
         while self.remain_block:
             row, col, act = self.command()
             cur = self.blocks[row][col]
             
-            # To avoid first trial game over.
+            # 첫 시도 게임 오버 방지
             if not self.init_loc:
                 self.init_loc = (row, col)
                 self.randomize_bomb()
                 self.calculate_bomb_distance()
             
             if act == 1:
-                # Opended block left click exception.
+                # 열린 칸 좌클릭 예외 처리
                 if cur.opened:
                     os.system('clear')
                     print("You can left click closed block only.\n")
                     continue
                     
-                # Flaged block left click exception.
+                # 깃발 꽂힌 칸 좌클릭 예외 처리
                 if cur.flaged:
                     os.system('clear')
                     print("You can left click non-flaged block only.\n")
@@ -286,7 +286,7 @@ class Minesweeper2Agent(Board):
                 self.left_click(row, col)
             
             elif act == 2:
-                # Opened block right click exception.
+                # 열린 칸 우클릭 예외 처리
                 if cur.opened:
                     os.system('clear')
                     print("You can right click closed block only.\n")
@@ -294,13 +294,13 @@ class Minesweeper2Agent(Board):
                 self.right_click(row, col)
             
             else:
-                # Closed block chord exception.
+                # 잠긴 칸 동시클릭 예외 처리
                 if not cur.opened:
                     os.system('clear')
                     print("You can chord opened block only.\n")
                     continue
                 
-                # Flag num and block num mismatch exception.
+                # 깃발 숫자와 칸에 적힌 숫자가 다를 때 예외 처리
                 if self.count_adj_flag(row, col) != cur.n_adj_bomb:
                     os.system('clear')
                     print("You can only chord when the number of flags matches the block number.\n")

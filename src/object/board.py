@@ -15,9 +15,7 @@ def adj_loc(x, y, xmax, ymax):
 
 
 class Board:
-    """Board definition"""
-
-    # Divide size into height and width
+    # size를 height, width로 분리
     def __init__(self, height, width, n_bomb):
         self.height = height
         self.width = width
@@ -29,8 +27,8 @@ class Board:
 
         self.miss_block = None
 
-        self.remain_flag = n_bomb  # Remaining flag value starts from n_bomb, which can be less than 0.
-        self.remain_block = height * width - n_bomb # If this value goes to 0, user wins.
+        self.remain_flag = n_bomb  # 남은 깃발 수는 폭탄 수에서부터 시작되며 0보다 작아질 수 있음
+        self.remain_block = height * width - n_bomb  # 남은 블럭 수가 0이 되면 승리
         
         self._generate() # 보드 생성
 

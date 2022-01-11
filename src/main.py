@@ -1,11 +1,11 @@
-"""Minesweeper 2 RL Simulator
+"""
+Minesweeper 2 RL Simulator
 ⓒ 2021 Kyeongjin Mun, Seungwon Lee, Jeonghan Lim. All Rights Reserved.
 """
 
 import os
 
 from models.torch.torch_dqn import ReplayMemory
-from models.torch.torch_dqn import TorchDQN
 from models.torch.torch_dqn import TorchDQNAgent
 
 

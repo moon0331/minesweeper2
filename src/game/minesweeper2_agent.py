@@ -6,16 +6,15 @@ from models.torch.torch_dqn import TorchDQNAgent
 
 
 class Minesweeper2Agent(Board, TorchDQNAgent):
-    """A class which is responsible for whole game management such as level selection, displaying board, user input,
-    main sequence, results, etc., that is almost all about this game.
     """
-
+    지뢰찾기 레벨 선택, 보드 출력, 사용자 입력, 메인 알고리즘, 결과 출력 등 게임에 관한 모든 것을 담당하는 클래스
+    """
     def __init__(self, level):
         self.level = level
         self.board_info = {1: (9, 9, 10), 2: (16, 16, 40), 3: (16, 30, 99)}
         self.time = 0
         self.click = 0
-        self.reward = 0  # For RL
+        self.reward = 0  # 강화학습용
     
     # def select_level(self):
     #     while True:
@@ -132,7 +131,7 @@ class Minesweeper2Agent(Board, TorchDQNAgent):
         # print("Clicks: %d\n" % self.click)
 
     def run(self):
-        """Main sequence of playing Minesweeper 2."""
+        """Minesweeper 2 메인 알고리즘"""
         # os.system('clear')
         # print("Minesweeper 2.0\n\nⓒ  2021 Kyeongjin Mun, Seungwon Lee All Rights Reserved.\n")
         # self.level = self.select_level()
@@ -141,33 +140,39 @@ class Minesweeper2Agent(Board, TorchDQNAgent):
 
         # os.system('clear')
         
-        # Only 0-index is used for both backend and user input.
+        # 0-index 사용
         while self.remain_block:
-            # Need to preprocess.
+            # state 전처리 필요
             state = None
             act = self.predict(state)
             # row, col, act = self.command()
-            # Step process
+            # step
+            pass
             
             # Should convert act(0 ~ row * col * 3 - 1) to (row, col, cmd)
+            # 0 ~ row * col * 3 - 1 사이의 act 값을 (row, col, cmd)로 매핑해줘야함
             # self.convert_act()
             
             cur = self.blocks[row][col]
             
-            # To avoid first trial game over.
+            # 첫 시도에 게임 오버 방지
             if not self.init_loc:
                 self.init_loc = (row, col)
                 self.randomize_bomb()
                 self.calculate_bomb_distance()
             
+            """
+            여기 밑에 있는 예외 처리 케이스는 실제 강화학습할 때는 의미가 없는 action이라 판단하여 모두 제거 예정
+            """
+            
             if act == 1:
-                # Opended block left click exception.
+                # 열린 칸 좌클릭 예외 처리
                 if cur.opened:
                     # os.system('clear')
                     # print("You can left click closed block only.\n")
                     continue
                     
-                # Flaged block left click exception.
+                # 깃발 꽂힌 칸 좌클릭 예외 처리
                 if cur.flaged:
                     # os.system('clear')
                     # print("You can left click non-flaged block only.\n")
@@ -176,7 +181,7 @@ class Minesweeper2Agent(Board, TorchDQNAgent):
                 self.left_click(row, col)
             
             elif act == 2:
-                # Opened block right click exception.
+                # 열린 칸 우클릭 예외 처리
                 if cur.opened:
                     # os.system('clear')
                     # print("You can right click closed block only.\n")
@@ -184,13 +189,13 @@ class Minesweeper2Agent(Board, TorchDQNAgent):
                 self.right_click(row, col)
             
             else:
-                # Closed block chord exception.
+                # 잠긴 칸 동시클릭 예외 처리
                 if not cur.opened:
                     # os.system('clear')
                     # print("You can chord opened block only.\n")
                     continue
                 
-                # Flag num and block num mismatch exception.
+                # 깃발 숫자와 칸에 적힌 숫자가 다를 때 예외 처리
                 if self.count_adj_flag(row, col) != cur.n_adj_bomb:
                     # os.system('clear')
                     # print("You can only chord when the number of flags matches the block number.\n")

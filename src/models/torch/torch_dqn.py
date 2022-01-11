@@ -19,7 +19,6 @@ BATCH_SIZE = 32
 
 
 class ReplayMemory:
-
     def __init__(self):
         self.memory = deque(maxlen=REPLAY_MEMORY)
     
@@ -42,7 +41,7 @@ class ReplayMemory:
             next_states.append(next_state)
             done_masks.append([done_mask])
 
-        # Convert to np.ndarray because of torch performance issue.
+        # Torch 성능 이슈로 인해 np.ndarray로 변환
         states = np.array(states)
         actions = np.array(actions)
         rewards = np.array(rewards)
@@ -58,7 +57,6 @@ class ReplayMemory:
 
 
 class TorchDQNAgent:
-    
     def __init__(self, args):        
         print("=" * 100)
         print("Started Minesweeper2 DQN algorithm")
@@ -90,10 +88,10 @@ class TorchDQNAgent:
         self.episode_number = 0
         self.episode_rewards = []  
         
-        self.epsilon = EPSILON_START  # epsilon init value
+        self.epsilon = EPSILON_START  # epsilon 초기값
 
-        # Initialize replay memory and Q networks
-        self.input_size = 11  # Temporary
+        # Replay memory와 Q network 초기화
+        self.input_size = 11  # 현재는 input size를 미리 주지만 input_size를 탐지하는 방법은 없나 고민중
         self.q = DQN(self.input_size).to(device)
         self.q_target = DQN(self.input_size).to(device)
         self.q_target.load_state_dict(self.q.state_dict())
@@ -125,7 +123,7 @@ class TorchDQNAgent:
         else:
             self.next_state = self.preprocess(next_state)
             
-            # Store transition to replay memory.
+            # Transition을 replay memory에 보관
             done_mask = 0.0 if done else 1.0
             self.replay_memory.put((self.state, self.action, reward, self.next_state, done_mask))
             
@@ -141,7 +139,7 @@ class TorchDQNAgent:
                 self.train()
             self.update_epsilon()
             if self.steps_taken % TARGET_UPDATE_ITER == 0:
-                # UPDATING target network 
+                # Target network 업데이트
                 self.q_target.load_state_dict(self.q.state_dict())
             
             torch.save(self.q.state_dict(), PATH)
@@ -152,7 +150,7 @@ class TorchDQNAgent:
             self.q_target.eval()
 		
     def train(self):
-        # replay_memory로부터 mini batch를 받아 policy를 업데이트
+        # Replay memory로부터 mini-batch를 받아 policy를 업데이트
         for _ in range(10):
             state, action, reward, next_state, done_mask = self.replay_memory.sample(BATCH_SIZE)
             
@@ -175,7 +173,7 @@ class TorchDQNAgent:
         self.steps_per_epi = 0
     
     def final(self, state):
-        # epsidoe 종료시 불려오는 함수. 수정할 필요 없음.
+        # Epsidoe 종료 시 호출되는 함수
         done = True
         reward = self.getScore(state)
         if reward >= 0: # not eaten by ghost when the game ends
@@ -186,7 +184,7 @@ class TorchDQNAgent:
         win_rate = float(self.win_counter) / 500.0
 
         avg_reward = np.mean(np.array(self.episode_rewards))
-		# print episode information
+		# 에피소드 정보 출력
         if self.episode_number%500 == 0:
             print("Episode no = {:>5}; Win rate {:>5}/500 ({:.2f}); average reward = {:.2f}; epsilon = {:.2f}".format(self.episode_number,
                                                                     self.win_counter, win_rate, avg_reward, self.epsilon))
@@ -229,7 +227,6 @@ class TorchDQNAgent:
 
 
 class DQN(nn.Module):
-
     def __init__(self, D_in):
         super(DQN, self).__init__()
         self.fc1 = nn.Linear(D_in, 128)
